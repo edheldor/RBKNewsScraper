@@ -12,14 +12,20 @@ class NewsItem:
         self.paragraphs = []
         self.text_short = None
 
-    def add_date(self, date):
-        self.date = date
 
-    def add_text(self, text):
-        self.text = text
 
-    def get_all(self):
-        return {'title': self.title, 'link': self.link, 'date': self.date, 'text': self.text}
+    def __str__(self):
+        output = self.title + "\n\n"
+        output += self.link + "\n"
+        output += "Дата публикации: " + self.date.strftime("%d-%m-%Y %H:%M") + "\n"
+        output += "Коротко: " + "\n"
+        output += self.text_short + "\n"
+        output += "Полный текст: " + "\n"
+        for paragraph in self.paragraphs:
+            output += paragraph + "\n"
+        output += "------" + "\n"
+        return  output
+
 
 
 
@@ -81,6 +87,7 @@ class RBKNewsScraper:
             for paragraph in paragraphs:
                 news_item.paragraphs.append(paragraph.text)
 
-
-
+    def print_all_news(self):
+        for item in self.news:
+            print(item)
 
