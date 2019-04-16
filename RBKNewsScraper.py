@@ -1,6 +1,6 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
-import re, datetime
+import datetime
 
 class NewsItem:
 
@@ -9,7 +9,8 @@ class NewsItem:
         self.title = title
         self.link = link
         self.date = None
-        self.text = None
+        self.paragraphs = []
+        self.text_short = None
 
     def add_date(self, date):
         self.date = date
@@ -32,12 +33,12 @@ class RBKNewsScraper:
         main_page_urlopened = urlopen(self.index_page_url)
         self.soup = BeautifulSoup(main_page_urlopened, 'html.parser')
 
-        #Добавляем основную новость (выделенна жирным на главной странце)
+        #Добавляем заголовок и ссылку основной новости (выделенна жирным на главной странце)
         first_news_item_soup = self.soup.find(class_="main__big__link")
         first_news_item = NewsItem(str.strip(first_news_item_soup.text), first_news_item_soup.attrs['href'])
         self.news.append(first_news_item)
 
-        #Доавляем остальные новости
+        #Доавляем заголовки и ссылки на остальные новости
         other_news_soup = self.soup.find_all(class_="main__feed")
         for news_item_soup in other_news_soup:
             news_item_title = str.strip(news_item_soup.text)
@@ -45,7 +46,7 @@ class RBKNewsScraper:
             news_item = NewsItem(news_item_title, news_item_link)
             self.news.append(news_item)
 
-        #Для всех добавленных новостей добавляем дату написания и основной текст новости
+        #Для всех добавленных новостей добавляем дату написания и текст новости
         self.__scrap_text_and_date_for_all_news()
 
     @staticmethod
@@ -67,7 +68,19 @@ class RBKNewsScraper:
             news_item_urlopened = urlopen(news_item.link)
             news_item_soup = BeautifulSoup(news_item_urlopened, 'html.parser')
             raw_date = news_item_soup.find(class_="article__header__date")['content']
+            #Добавляев в объекты новостей дату
             news_item.date = RBKNewsScraper.create_date(raw_date)
+
+            #Добаввляем краткий вариант новости
+            news_item.text_short =   str.strip(news_item_soup.find(class_="article__text__overview").text)
+
+            #Добавлем основной текст новости
+            paragraphs_soup =  news_item_soup.find(class_="article__text")
+            paragraphs = paragraphs_soup.find_all('p')
+
+            for paragraph in paragraphs:
+                news_item.paragraphs.append(paragraph.text)
+
 
 
 
