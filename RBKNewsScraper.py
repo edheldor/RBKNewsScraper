@@ -29,10 +29,10 @@ class RBKNewsScraper:
     def __init__(self, url="https://www.rbc.ru/"):
         self.news = []
         self.index_page_url = url
-        self.main_page = urlopen(self.index_page_url)
-        self.soup = BeautifulSoup(self.main_page, 'html.parser')
+        main_page_urlopened = urlopen(self.index_page_url)
+        self.soup = BeautifulSoup(main_page_urlopened, 'html.parser')
 
-        #Добавляем в список новостей основную новость (выделенна жирным на главной странце)
+        #Добавляем основную новость (выделенна жирным на главной странце)
         first_news_item_soup = self.soup.find(class_="main__big__link")
         first_news_item = NewsItem(str.strip(first_news_item_soup.text), first_news_item_soup.attrs['href'])
         self.news.append(first_news_item)
@@ -45,11 +45,27 @@ class RBKNewsScraper:
             news_item = NewsItem(news_item_title, news_item_link)
             self.news.append(news_item)
 
+        #Для всех добавленных новостей добавляем время написания и основной текст новости
+        self.__scrap_text_and_time_for_all_news()
 
     @staticmethod
-    def parse_date_from_url (url):
+    def create_date (url, time):
+        #Из URL парсится дата, объединятеся с временем и возвращается объект datetime
         match = re.search(r'(\d+/\d+/\d+)', url)
         date_string = match.group(1)
-        date = datetime.datetime.strptime(date_string,"%d/%m/%Y")
+        time_string = time.replace (":","/") + "/"
+        date_time_string = time_string + date_string
+        date = datetime.datetime.strptime(date_time_string,"%H/%M/%d/%m/%Y")
         return date
+
+
+
+    def __scrap_text_and_time_for_all_news(self):
+        for news_item in self.news:
+            news_item_urlopened = urlopen(news_item.link)
+            news_item_soup = BeautifulSoup(news_item_urlopened, 'html.parser')
+            time = news_item_soup.find(class_="article__header__date").text
+            news_item.date = RBKNewsScraper.create_date(news_item.link, time)
+
+
 
