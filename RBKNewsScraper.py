@@ -1,6 +1,6 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
-import datetime
+import datetime, json
 
 class NewsItem:
 
@@ -12,6 +12,15 @@ class NewsItem:
         self.paragraphs = []
         self.text_short = None
 
+    #Возвращает новость в виде словаря
+    def get_dict(self):
+        out = {'title': self.title, 'link': self.link, 'date': self.date, 'short': self.text_short}
+        text = ""
+        for paragraph in self.paragraphs:
+            text += paragraph
+        out['text'] = text
+
+        return out
 
     #Вывод на пеать при print()
     def __str__(self):
@@ -91,7 +100,26 @@ class RBKNewsScraper:
                     if paragraph.text.find("\n\n\n\n") == -1:
                         news_item.paragraphs.append(paragraph.text)
 
+    #Для вывода всего на печать в консоль
     def print_all_news(self):
         for item in self.news:
             print(item)
+
+
+    #Возвращает лист с новостями в  виде словарей
+    def get_list(self):
+        out = []
+        for item in self.news:
+            out.append(item.get_dict())
+        return out
+
+    #Возвращает новсти в JSON формате
+    def get_json(self):
+        news = self.get_list()
+        for item in news:
+            item['date'] = str(item['date'])
+        json_news = json.dumps(news)
+        return json_news
+
+
 
