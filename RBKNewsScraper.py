@@ -91,17 +91,23 @@ class RBKNewsScraper:
             #Добавляев в объекты новостей дату
             news_item.date = RBKNewsScraper.create_date(raw_date)
 
-            #Добаввляем краткий вариант новости
-            news_item.text_short =   str.strip(news_item_soup.find(class_="article__text__overview").text)
+            try:#во время тестирования программа не могла обработать посты с sportrbc.ru со счетом матчей, поэтому тут
+                #если незнакомы тип новости просто пропускаем обработку тела этой новости
 
-            #Добавлем основной текст новости
-            paragraphs_soup_all =  news_item_soup.find_all(class_="article__text")
-            for paragraph_soup in paragraphs_soup_all:
-                paragraphs = paragraph_soup.find_all('p')
-                for paragraph in paragraphs:
-                    #Не вставляем параграф если это баннер в статье (опытнм путем установлено что в этом случае в параграфе присутсвует "\n\n\n\n")
-                    if paragraph.text.find("\n\n\n\n") == -1:
-                        news_item.paragraphs.append(paragraph.text)
+                #Добаввляем краткий вариант новости
+                news_item.text_short =   str.strip(news_item_soup.find(class_="article__text__overview").text)
+
+                #Добавлем основной текст новости
+                paragraphs_soup_all =  news_item_soup.find_all(class_="article__text")
+                for paragraph_soup in paragraphs_soup_all:
+                    paragraphs = paragraph_soup.find_all('p')
+                    for paragraph in paragraphs:
+                        #Не вставляем параграф если это баннер в статье (опытнм путем установлено что в этом случае в параграфе присутсвует "\n\n\n\n")
+                        if paragraph.text.find("\n\n\n\n") == -1:
+                            news_item.paragraphs.append(paragraph.text)
+            except:
+                news_item.text_short = ""
+                news_item.paragraphs = ""
 
     #Для вывода всех новостей на печать в консоль
     def print_all_news(self):
