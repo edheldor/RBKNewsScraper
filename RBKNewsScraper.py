@@ -13,18 +13,20 @@ class NewsItem:
         self.text_short = None
 
 
-
+    #Вывод на пеать при print()
     def __str__(self):
-        output = self.title + "\n\n"
-        output += self.link + "\n"
-        output += "Дата публикации: " + self.date.strftime("%d-%m-%Y %H:%M") + "\n"
+        output = "Заголовок: " + "\n"
+        output += self.title + "\n\n"
+        output += self.link + "\n\n"
+        output += "Дата публикации: " + self.date.strftime("%d-%m-%Y %H:%M") + "\n\n"
         output += "Коротко: " + "\n"
-        output += self.text_short + "\n"
+        output += self.text_short + "\n\n"
         output += "Полный текст: " + "\n"
         for paragraph in self.paragraphs:
             output += paragraph + "\n"
-        output += "------" + "\n"
+        output += "------" + "\n\n"
         return  output
+
 
 
 
@@ -81,11 +83,13 @@ class RBKNewsScraper:
             news_item.text_short =   str.strip(news_item_soup.find(class_="article__text__overview").text)
 
             #Добавлем основной текст новости
-            paragraphs_soup =  news_item_soup.find(class_="article__text")
-            paragraphs = paragraphs_soup.find_all('p')
-
-            for paragraph in paragraphs:
-                news_item.paragraphs.append(paragraph.text)
+            paragraphs_soup_all =  news_item_soup.find_all(class_="article__text")
+            for paragraph_soup in paragraphs_soup_all:
+                paragraphs = paragraph_soup.find_all('p')
+                for paragraph in paragraphs:
+                    #Не вставляем параграф если это баннер (опытнм путем установлено что в этом случае в параграфе присутсвует "\n\n\n\n")
+                    if paragraph.text.find("\n\n\n\n") == -1:
+                        news_item.paragraphs.append(paragraph.text)
 
     def print_all_news(self):
         for item in self.news:
