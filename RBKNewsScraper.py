@@ -1,5 +1,6 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
+import re, datetime
 
 class NewsItem:
 
@@ -45,12 +46,10 @@ class RBKNewsScraper:
             self.news.append(news_item)
 
 
+    @staticmethod
+    def parse_date_from_url (url):
+        match = re.search(r'(\d+/\d+/\d+)', url)
+        date_string = match.group(1)
+        date = datetime.datetime.strptime(date_string,"%d/%m/%Y")
+        return date
 
-
-
-
-    def scrap_news_list(self):
-        pass
-
-    def scrap_news_item(self, url):
-        pass
