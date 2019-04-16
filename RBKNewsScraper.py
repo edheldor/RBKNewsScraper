@@ -26,15 +26,24 @@ class RBKNewsScraper:
 
 
     def __init__(self, url="https://www.rbc.ru/"):
-        self.news = {}
+        self.news = []
         self.index_page_url = url
         self.main_page = urlopen(self.index_page_url)
         self.soup = BeautifulSoup(self.main_page, 'html.parser')
 
         #Добавляем в список новостей основную новость (выделенна жирным на главной странце)
-        self.first_news_item_soup = self.soup.find(class_="main__big__link")
-        self.first_news_item = NewsItem(str.strip(self.first_news_item_soup.text), self.first_news_item_soup.attrs['href'])
-        self.news['1'] = self.first_news_item
+        first_news_item_soup = self.soup.find(class_="main__big__link")
+        first_news_item = NewsItem(str.strip(first_news_item_soup.text), first_news_item_soup.attrs['href'])
+        self.news.append(first_news_item)
+
+        #Доавляем остальные новости
+        other_news_soup = self.soup.find_all(class_="main__feed")
+        for news_item_soup in other_news_soup:
+            news_item_title = str.strip(news_item_soup.text)
+            news_item_link  = news_item_soup.find(class_='main__feed__link').attrs['href']
+            news_item = NewsItem(news_item_title, news_item_link)
+            self.news.append(news_item)
+
 
 
 
