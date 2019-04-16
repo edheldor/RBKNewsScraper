@@ -10,6 +10,9 @@
 Пример использования в файле **scraper.py**
 
 
+Импортируем все из RBKNewsScraper
+`from RBKNewsScraper import RBKNewsScraper, NewsItem`
+
 Создаем объект скэппера, он автоматически парсит 15 новостей с главной страницы
 
 `news = RBKNewsScraper()`
