@@ -63,12 +63,13 @@ class RBKNewsScraper:
             news_item = NewsItem(news_item_title, news_item_link)
             self.news.append(news_item)
 
-        #Для всех добавленных новостей добавляем дату написания и текст новости
+        #Для всех добавленных ранее новостей добавляем дату написания и текст новости
         self.__scrap_text_and_date_for_all_news()
 
+    #Метод статический, позволяет пользоватся им без создания экземплера класса, как простой функцией
     @staticmethod
     def create_date (raw_date):
-        #Из URL парсится дата, объединятеся с временем и возвращается объект datetime
+        #Возвращает объект datetime.datetime
         raw_date, raw_time = raw_date.split("T")
         time = raw_time[:8]
         timezone = raw_time[8:]
@@ -81,10 +82,12 @@ class RBKNewsScraper:
 
 
     def __scrap_text_and_date_for_all_news(self):
+        #проходим по всем ранее добавленым новостям
         for news_item in self.news:
             news_item_urlopened = urlopen(news_item.link)
             news_item_soup = BeautifulSoup(news_item_urlopened, 'html.parser')
             raw_date = news_item_soup.find(class_="article__header__date")['content']
+
             #Добавляев в объекты новостей дату
             news_item.date = RBKNewsScraper.create_date(raw_date)
 
@@ -96,11 +99,11 @@ class RBKNewsScraper:
             for paragraph_soup in paragraphs_soup_all:
                 paragraphs = paragraph_soup.find_all('p')
                 for paragraph in paragraphs:
-                    #Не вставляем параграф если это баннер (опытнм путем установлено что в этом случае в параграфе присутсвует "\n\n\n\n")
+                    #Не вставляем параграф если это баннер в статье (опытнм путем установлено что в этом случае в параграфе присутсвует "\n\n\n\n")
                     if paragraph.text.find("\n\n\n\n") == -1:
                         news_item.paragraphs.append(paragraph.text)
 
-    #Для вывода всего на печать в консоль
+    #Для вывода всех новостей на печать в консоль
     def print_all_news(self):
         for item in self.news:
             print(item)
